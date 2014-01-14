@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Temperature of achinsk Buddhist center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Reliability of Information Systems">
+    <meta name="author" content="Vasiliy Sannikov">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <!-- <script src="http://code.jquery.com/jquery.min.js"></script> -->
+
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+
+      function request(type, url, opts, callback) {
+          var xhr = new XMLHttpRequest(),
+              fd;
+
+          if (typeof opts === 'function') {
+              callback = opts;
+              opts = null;
+          }
+
+          xhr.open(type, url);
+
+          if (type === 'POST' && opts) {
+              fd = new FormData();
+
+              for (var key in opts) {
+                  fd.append(key, JSON.stringify(opts[key]));
+              }
+          }
+
+          xhr.onload = function () {
+              callback(JSON.parse(xhr.response));
+          };
+
+          xhr.send(opts ? fd : null);
+      }
+
+      var get = request.bind(this, 'GET');
+      var post = request.bind(this, 'POST');
+
+
+      //google.load("visualization", "1", {packages:["corechart"]});
+      google.load('visualization', '1.0', {'packages':['controls']});
+      google.setOnLoadCallback(drawVisualization);
+
+      function drawVisualization() {
+        var dashboard = new google.visualization.Dashboard(
+             document.getElementById('dashboard'));
+
+         var control = new google.visualization.ControlWrapper({
+           'controlType': 'ChartRangeFilter',
+           'containerId': 'control',
+           'options': {
+             // Filter by the date axis.
+             'filterColumnIndex': 0,
+             'ui': {
+               'chartType': 'LineChart',
+               'chartOptions': {
+                 'chartArea': {'width': '90%'},
+                 'hAxis': {'baselineColor': 'none'}
+               },
+               // Display a single series that shows the closing value of the stock.
+               // Thus, this view has two columns: the date (axis) and the stock value (line series).
+               'chartView': {
+                 'columns': [0, 1, 2, 3]
+               },
+               // 1 day in milliseconds = 24 * 60 * 60 * 1000 = 86,400,000
+               'minRangeSize': 86400000
+             }
+           },
+           // Initial range: 2012-02-09 to 2012-03-20.
+           //'state': {'range': {'start': new Date(2014, 0, 12), 'end': new Date(2014, 0, 14)}}
+         });
+
+         var chart = new google.visualization.ChartWrapper({
+           'chartType': 'LineChart',
+           'containerId': 'chart',
+           'options': {
+             // Use the same chart area width as the control for axis alignment.
+             'chartArea': {'height': '80%', 'width': '90%'},
+             'hAxis': {'slantedText': false},
+             //'vAxis': {'viewWindow': {'min': 0, 'max': 120}},
+             'legend': {'position': 'top'}
+           }/*,
+           // Convert the first column from 'date' to 'string'.
+           'view': {
+             'columns': [
+               {
+                 'calc': function(dataTable, rowIndex) {
+                   return dataTable.getFormattedValue(rowIndex, 0);
+                 },
+                 'type': 'string'
+             }, 1, 2, 3]
+          }*/
+        });
+
+        var data = new google.visualization.DataTable();
+        data.addColumn('datetime', 'Date');
+        data.addColumn('number', 'T1');
+        data.addColumn('number', 'T2');
+        data.addColumn('number', 'T3');
+
+        dashboard.bind(control, chart);
+        get("/getData", function(getted){
+          for ( var row in getted ){
+            var a = [ new Date(getted[row].time), getted[row].t1, getted[row].t2, getted[row].t3 ];
+            data.addRow(a);
+          }
+          document.getElementById('lastData').innerHTML = "Last at: " + new Date(a[0]) + "<br>T1 = " + a[1] + "<br>T2 = " + a[2] + "<br>T3 = " + a[3];
+          dashboard.draw(data);
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div id="lastData"></div>
+    <div id="dashboard" style="position: relative;">
+      <div id="chart" style="width: 915px; height: 300px; position: relative;"></div>
+      <div id="control" style="width: 915px; height: 50px; position: relative;"></div>
+    </div>
+  </body>
+</html>
