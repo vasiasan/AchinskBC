@@ -75,9 +75,9 @@ char *ftoa(char *a, double f, int precision)
 }
 
 char buffer [100];
-char t1 [6];
-char t2 [6];
-char t3 [6];
+char t1 [8];
+char t2 [8];
+char t3 [8];
 
 String httpStatus = "";
 String serverCode = "";
