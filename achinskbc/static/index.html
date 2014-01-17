@@ -8,7 +8,7 @@
     <meta name="author" content="Vasiliy Sannikov">
     <link rel="shortcut icon" href="/favicon.ico">
 
-    <!-- <script src="http://code.jquery.com/jquery.min.js"></script> -->
+    <script src="http://code.jquery.com/jquery.min.js"></script>
 
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
@@ -66,7 +66,7 @@
                // Display a single series that shows the closing value of the stock.
                // Thus, this view has two columns: the date (axis) and the stock value (line series).
                'chartView': {
-                 'columns': [0, 1, 2, 3]
+                 'columns': [0, 1, 2, 3, 4]
                },
                // 1 day in milliseconds = 24 * 60 * 60 * 1000 = 86,400,000
                'minRangeSize': 86400000
@@ -103,14 +103,15 @@
         data.addColumn('number', 'T1');
         data.addColumn('number', 'T2');
         data.addColumn('number', 'T3');
+        data.addColumn('number', 'T4');
 
         dashboard.bind(control, chart);
         get("/getData", function(getted){
           for ( var row in getted ){
-            var a = [ new Date(getted[row].time), getted[row].t1, getted[row].t2, getted[row].t3 ];
+            var a = [ new Date(getted[row].time), getted[row].t1, getted[row].t2, getted[row].t3, getted[row].t4 ];
             data.addRow(a);
           }
-          document.getElementById('lastData').innerHTML = "Last at: " + new Date(a[0]) + "<br>T1 = " + a[1] + "<br>T2 = " + a[2] + "<br>T3 = " + a[3];
+          document.getElementById('lastData').innerHTML = "Last at: " + new Date(a[0]) + "<br>T1 = " + a[1] + "<br>T2 = " + a[2] + "<br>T3 = " + a[3] + "<br>T4 = " + a[4];
           dashboard.draw(data);
         });
       }

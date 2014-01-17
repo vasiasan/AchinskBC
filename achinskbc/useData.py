@@ -12,14 +12,41 @@ class temperatureData(ndb.Model):
     t1 = ndb.FloatProperty(indexed=False)
     t2 = ndb.FloatProperty(indexed=False)
     t3 = ndb.FloatProperty(indexed=False)
+    t4 = ndb.FloatProperty(indexed=False)
 
 class putData(webapp2.RequestHandler):
 
     def get(self):
       if self.request.get('key') == "PASSWORDHERE":
-        thisTemp = temperatureData( t1=float( self.request.get('t1') ),
-                                    t2=float( self.request.get('t2') ),
-                                    t3=float( self.request.get('t3') ) )
+        v1 = self.request.get('t1')
+        v2 = self.request.get('t2')
+        v3 = self.request.get('t3')
+        v4 = self.request.get('t4')
+
+        if v1 == "-127.0" or not v1:
+          v1 = None
+        else:
+          v1 = float( v1 )
+
+        if v2 == "-127.0" or not v2:
+          v2 = None
+        else:
+          v2 = float( v2 )
+
+        if v3 == "-127.0" or not v3:
+          v3 = None
+        else:
+          v3 = float( v3 )
+
+        if v4 == "-127.0" or not v4:
+          v4 = None
+        else:
+          v4 = float( v4 )
+
+        thisTemp = temperatureData( t1 = v1,
+                                    t2 = v2,
+                                    t3 = v3,
+                                    t4 = v4 )
         thisTemp.put()
         self.response.out.write("OK")
       else:
