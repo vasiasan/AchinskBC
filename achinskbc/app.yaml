@@ -9,6 +9,10 @@ handlers:
   static_files: static/index.html
   upload: static/index.html
 
+- url: /table
+  static_files: static/table.html
+  upload: static/table.html
+
 - url: /favicon.ico
   static_files: images/favicon.ico
   upload: images/favicon.ico

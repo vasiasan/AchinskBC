@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Temperature of achinsk Buddhist center</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Reliability of Information Systems">
+    <meta name="author" content="Vasiliy Sannikov">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+
+  </head>
+  <body>
+    <a href="/">Graph</a>
+    <table border=1 id="lastData"></table>
+  </body>
+
+    <script type="text/javascript">
+
+      $("#lastData").append( "<tr><td>Date</td><td>Room1</td><td>Room2</td><td>In</td><td>Out</td></tr>" );
+
+      $.get("/getData", function(getted){
+        getted = getted.reverse();
+        for ( var row in getted ){
+          $("#lastData").append( ""
+            + "<tr>"
+              + "<td>"
+              + getted[row].time
+              + "</td>"
+              + "<td>"
+              + getted[row].t1
+              + "</td>"
+              + "<td>"
+              + getted[row].t2
+              + "</td>"
+              + "<td>"
+              + getted[row].t3
+              + "</td>"
+              + "<td>"
+              + getted[row].t4
+              + "</td>"
+            + "</tr>")
+        }
+      });
+    </script>
+</html>

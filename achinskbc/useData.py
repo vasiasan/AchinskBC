@@ -14,39 +14,23 @@ class temperatureData(ndb.Model):
     t3 = ndb.FloatProperty(indexed=False)
     t4 = ndb.FloatProperty(indexed=False)
 
+def floatConvert( s ):
+  if s == "-127.0":
+    return None
+  try:
+    return float(s)
+  except ValueError:
+    return None
+
 class putData(webapp2.RequestHandler):
 
     def get(self):
-      if self.request.get('key') == "PASSWORDHERE":
-        v1 = self.request.get('t1')
-        v2 = self.request.get('t2')
-        v3 = self.request.get('t3')
-        v4 = self.request.get('t4')
-
-        if v1 == "-127.0" or not v1:
-          v1 = None
-        else:
-          v1 = float( v1 )
-
-        if v2 == "-127.0" or not v2:
-          v2 = None
-        else:
-          v2 = float( v2 )
-
-        if v3 == "-127.0" or not v3:
-          v3 = None
-        else:
-          v3 = float( v3 )
-
-        if v4 == "-127.0" or not v4:
-          v4 = None
-        else:
-          v4 = float( v4 )
-
-        thisTemp = temperatureData( t1 = v1,
-                                    t2 = v2,
-                                    t3 = v3,
-                                    t4 = v4 )
+      if self.request.get('key') == "YOURPASSOWRD":
+        thisTemp = temperatureData(
+                      t1 = floatConvert( self.request.get('t1') ),
+                      t2 = floatConvert( self.request.get('t2') ),
+                      t3 = floatConvert( self.request.get('t3') ),
+                      t4 = floatConvert( self.request.get('t4') ) )
         thisTemp.put()
         self.response.out.write("OK")
       else:
@@ -59,7 +43,7 @@ class getData(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         weekToJson = []
         for thisVal in week:
-            weekToJson.append({'time': thisVal.time.isoformat(), 't1': thisVal.t1, 't2': thisVal.t2, 't3': thisVal.t3})
+            weekToJson.append({'time': thisVal.time.isoformat(), 't1': thisVal.t1, 't2': thisVal.t2, 't3': thisVal.t3, 't4': thisVal.t4})
         self.response.out.write(json.dumps(weekToJson))
 
 

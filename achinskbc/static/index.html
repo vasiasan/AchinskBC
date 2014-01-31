@@ -100,10 +100,10 @@
 
         var data = new google.visualization.DataTable();
         data.addColumn('datetime', 'Date');
-        data.addColumn('number', 'T1');
-        data.addColumn('number', 'T2');
-        data.addColumn('number', 'T3');
-        data.addColumn('number', 'T4');
+        data.addColumn('number', 'Room1');
+        data.addColumn('number', 'Room2');
+        data.addColumn('number', 'In');
+        data.addColumn('number', 'Out');
 
         dashboard.bind(control, chart);
         get("/getData", function(getted){
@@ -111,14 +111,13 @@
             var a = [ new Date(getted[row].time), getted[row].t1, getted[row].t2, getted[row].t3, getted[row].t4 ];
             data.addRow(a);
           }
-          document.getElementById('lastData').innerHTML = "Last at: " + new Date(a[0]) + "<br>T1 = " + a[1] + "<br>T2 = " + a[2] + "<br>T3 = " + a[3] + "<br>T4 = " + a[4];
           dashboard.draw(data);
         });
       }
     </script>
   </head>
   <body>
-    <div id="lastData"></div>
+    <div id="lastData"><a href="/table">Table</a><br></div>
     <div id="dashboard" style="position: relative;">
       <div id="chart" style="width: 915px; height: 300px; position: relative;"></div>
       <div id="control" style="width: 915px; height: 50px; position: relative;"></div>

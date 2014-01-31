@@ -36,15 +36,16 @@ EthernetClient client;
 
 char server[] = "APPENGINEID.appspot.com";
 
-unsigned long lastConnectionTime = 0;          // last time you connected to the server, in milliseconds
+unsigned int nextTime = 0;          // next attempt connect to the server, in times
+unsigned int postTimesAttempts;    //  post times to server use in ( uptime / postingInterval )
 boolean lastConnected = false;                 // state of the connection last time through the main loop
 // 10 minutes
-const unsigned long postingInterval = 600000;// delay between updates, in milliseconds
+const unsigned long postingInterval = 1800000;// delay between updates, in milliseconds
 
-void setup() {
-  Serial.begin(9600);
+void setup() {                
+  Serial.begin(9600);  
   Wire.begin();
-
+  
   // Init temperature sensors
   sensors.begin();
   
@@ -78,15 +79,12 @@ char buffer [100];
 char t1 [8];
 char t2 [8];
 char t3 [8];
+char t4 [8];
 
-String httpStatus = "";
-String serverCode = "";
-int responseNumber = 0;
-int weeksNumber = 0;
-boolean firstTime = true;
+char * httpStatus = "U";
 
 // this method makes a HTTP connection to the server:
-void httpRequest(float v1, float v2, float v3) {
+void httpRequest(float v1, float v2, float v3, float v4) {
   // if there's a successful connection:
   if (client.connect(server, 80)) {
     Serial.println("connecting...");
@@ -94,23 +92,24 @@ void httpRequest(float v1, float v2, float v3) {
     ftoa(t1, v1, 2);
     ftoa(t2, v2, 2);
     ftoa(t3, v3, 2);
-    sprintf (buffer, "GET /putData?t1=%s&t2=%s&t3=%s&key=PASSWORDHERE HTTP/1.1", t1, t2, t3);
+    ftoa(t4, v4, 2);
+    sprintf (buffer, "GET /putData?t1=%s&t2=%s&t3=%s&t4=%s&key=YOURPASSWORD HTTP/1.1", t1, t2, t3, t4);
     client.println( buffer );
-    client.println("Host: APPENGINEID.appspot.com");
+    client.println("Host: APPENGINEID");
     client.println("User-Agent: arduino-ethernet");
     client.println("Connection: close");
     client.println();
-    httpStatus = "OK ";
+    httpStatus = "Y";
 
     // note the time that the connection was made:
-    lastConnectionTime = millis();
+    nextTime = postTimesAttempts + 1;
   } else {
     // if you couldn't make a connection:
     Serial.println("connection failed");
     Serial.println("disconnecting.");
     client.stop();
-    httpStatus = "FAIL ";
-    serverCode = "";
+    httpStatus = "N";
+    //serverCode = "";
   }
 }
 
@@ -119,46 +118,36 @@ void loop() {
     float t1 = sensors.getTempCByIndex(0);
     float t2 = sensors.getTempCByIndex(1);
     float t3 = sensors.getTempCByIndex(2);
+    float t4 = sensors.getTempCByIndex(3);
 
     lcd.clear();
     lcd.setCursor(0,0);
 
-    // print the number of seconds since reset:
-    //lcd.print(millis()/1000);
+    lcd.print(httpStatus);
+
     lcd.print(t1);
     lcd.print("C ");
     lcd.print(t2);
     lcd.print("C ");
-    lcd.print(weeksNumber);
 
     lcd.setCursor(0, 1);
 
+    lcd.print(" ");
+
     lcd.print(t3);
+    lcd.print("C ");
+
+    lcd.print(t4);
     lcd.print("C ");
 
     // if there's incoming data from the net connection.
     if (client.available()) {
       int i = 0;
-      serverCode = "";
       while (client.available()) {
         char c = client.read();
         Serial.print(c);
-        if ( i > 8 && i < 12 ){
-          serverCode = serverCode + c;
-        }
-        i++;
-      }
-      serverCode = serverCode + " ";
-      responseNumber++;
-      if ( responseNumber > 999 ){
-        responseNumber = 0;
-        weeksNumber++;
       }
     }
-
-    lcd.print(httpStatus);
-    lcd.print(serverCode);
-    lcd.print(responseNumber);
 
     // if there's no net connection, but there was one last time
     // through the loop, then stop the client:
@@ -170,14 +159,13 @@ void loop() {
 
     // if you're not connected, and ten seconds have passed since
     // your last connection, then connect again and send data:
-    if( (!client.connected() && (millis() - lastConnectionTime > postingInterval)) || firstTime) {
+    postTimesAttempts = millis() / postingInterval;
+    if( !client.connected() && ( postTimesAttempts >= nextTime ) ) {
       Serial.println( millis() );
-      httpRequest(t1, t2, t3);
-      firstTime = false;
+      httpRequest(t1, t2, t3, t4);
     }
     // store the state of the connection for next time through
     // the loop:
     lastConnected = client.connected();
 
-    //delay(227);
 }
